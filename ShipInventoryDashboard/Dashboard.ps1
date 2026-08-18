@@ -10,14 +10,15 @@ function Show-DashboardMenu {
     Write-Host "2. Check Fuel Levels Alert"
     Write-Host "3. Update Vessel Destination"
     Write-Host "4. Adjust Cargo Levels (Load/Unload)"
-    Write-Host "5. Exit System"
+    Write-Host "5. Run Fleet Financial & Efficiency Analytics"
+    Write-Host "6. Exit System"
     Write-Host "=========================================" -ForegroundColor Cyan
 }
 
 # Main Application Execution Loop
 do {
     Show-DashboardMenu
-    $Selection = Read-Host "Select a bridge option (1-5)"
+    $Selection = Read-Host "Select a bridge option (1-6)"
     
     switch ($Selection) {
         "1" {
@@ -63,7 +64,6 @@ do {
                 Write-Host "Current Cargo Load for $($Vessel.Name): $($Vessel.CargoLoad)%" -ForegroundColor Cyan
                 $Adjustment = Read-Host "Enter new cargo percentage (0 to 100)"
                 
-                # Validate input is within a safe maritime threshold
                 if ($Adjustment -as [int] -and [int]$Adjustment -ge 0 -and [int]$Adjustment -le 100) {
                     $Vessel.CargoLoad = [int]$Adjustment
                     Write-Host "`nSUCCESS: Cargo manifest updated for $($Vessel.Name)!" -ForegroundColor Green
@@ -77,7 +77,35 @@ do {
             }
             Read-Host "`nPress Enter to return to the bridge menu"
         }
+        "5" {
+            Clear-Host
+            Write-Host "=== FLEET FINANCIAL & EFFICIENCY PROJECTIONS ===" -ForegroundColor Yellow
+            Write-Host "------------------------------------------------" -ForegroundColor Cyan
+            
+            $Fleet = Get-ShipFleet
+            foreach ($Ship in $Fleet) {
+                # Base math algorithms for simulation
+                $EstimatedPortFee = $Ship.CargoLoad * 150 + 2500
+                $BurnRateModifier = 1.0 + ($Ship.CargoLoad / 100)
+                $EfficiencyScore  = [Math]::Round((($Ship.FuelLevel) / $BurnRateModifier), 1)
+                
+                Write-Host "Vessel Name:     " -NoNewline; Write-Host "$($Ship.Name)" -ForegroundColor White
+                Write-Host "Vessel ID:       " -NoNewline; Write-Host "[$($Ship.VesselID)]" -ForegroundColor Gray
+                Write-Host "Estimated Port Fees: " -NoNewline; Write-Host "$($EstimatedPortFee.ToString('C'))" -ForegroundColor Green
+                Write-Host "Efficiency Rating:   " -NoNewline
+                
+                if ($EfficiencyScore -gt 60) {
+                    Write-Host "$EfficiencyScore (Optimal)" -ForegroundColor Green
+                } elseif ($EfficiencyScore -ge 30) {
+                    Write-Host "$EfficiencyScore (Moderate Burn)" -ForegroundColor DarkYellow
+                } else {
+                    Write-Host "$EfficiencyScore (Critical Refuel Needed)" -ForegroundColor Red
+                }
+                Write-Host "------------------------------------------------" -ForegroundColor Cyan
+            }
+            Read-Host "`nPress Enter to return to the bridge menu"
+        }
     }
-} while ($Selection -ne "5")
+} while ($Selection -ne "6")
 
 Write-Host "Powering down dashboard navigation console. Smooth sailing!" -ForegroundColor Green
