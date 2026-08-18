@@ -15,7 +15,6 @@ function Show-DashboardMenu {
     Write-Host "=========================================" -ForegroundColor Cyan
 }
 
-# Main Application Execution Loop
 do {
     Show-DashboardMenu
     $Selection = Read-Host "Select a bridge option (1-6)"
@@ -30,7 +29,7 @@ do {
         "2" {
             Clear-Host
             Write-Host "--- Critical Fuel Monitoring ---" -ForegroundColor Red
-            Get-ShipFleet | Where-Object { $_.FuelLevel -lt 50 } | ForEach-Object {
+            Get-ShipFleet | Where-Object { [int]$_.FuelLevel -lt 50 } | ForEach-Object {
                 Write-Host "WARNING: Vessel [$($_.Name)] is low on fuel! ($($_.FuelLevel)%)" -ForegroundColor Red
             }
             Read-Host "`nPress Enter to return to the bridge menu"
@@ -45,9 +44,9 @@ do {
             $Vessel = $Fleet | Where-Object { $_.VesselID -eq $TargetID }
             if ($Vessel) {
                 $Vessel.Destination = $NewDest
-                Write-Host "`nSUCCESS: $($Vessel.Name) routing orders updated to $NewDest!" -ForegroundColor Green
-                Write-Host "`nUpdated Fleet Records:" -ForegroundColor Yellow
-                $Fleet | Format-Table -AutoSize
+                # Save changes instantly to file
+                Save-ShipFleet -UpdatedFleet $Fleet
+                Write-Host "`nSUCCESS: $($Vessel.Name) routing orders persisted to database!" -ForegroundColor Green
             } else {
                 Write-Host "ERROR: Vessel ID not found in manifest." -ForegroundColor Red
             }
@@ -66,8 +65,9 @@ do {
                 
                 if ($Adjustment -as [int] -and [int]$Adjustment -ge 0 -and [int]$Adjustment -le 100) {
                     $Vessel.CargoLoad = [int]$Adjustment
-                    Write-Host "`nSUCCESS: Cargo manifest updated for $($Vessel.Name)!" -ForegroundColor Green
-                    Write-Host "`nUpdated Fleet Records:" -ForegroundColor Yellow
+                    # Save changes instantly to file
+                    Save-ShipFleet -UpdatedFleet $Fleet
+                    Write-Host "`nSUCCESS: Cargo manifest persisted to database!" -ForegroundColor Green
                     $Fleet | Format-Table -AutoSize
                 } else {
                     Write-Host "ERROR: Invalid cargo parameters. Must be a number between 0 and 100." -ForegroundColor Red
@@ -84,10 +84,9 @@ do {
             
             $Fleet = Get-ShipFleet
             foreach ($Ship in $Fleet) {
-                # Base math algorithms for simulation
-                $EstimatedPortFee = $Ship.CargoLoad * 150 + 2500
-                $BurnRateModifier = 1.0 + ($Ship.CargoLoad / 100)
-                $EfficiencyScore  = [Math]::Round((($Ship.FuelLevel) / $BurnRateModifier), 1)
+                $EstimatedPortFee = [int]$Ship.CargoLoad * 150 + 2500
+                $BurnRateModifier = 1.0 + ([int]$Ship.CargoLoad / 100)
+                $EfficiencyScore  = [Math]::Round(([int]$Ship.FuelLevel / $BurnRateModifier), 1)
                 
                 Write-Host "Vessel Name:     " -NoNewline; Write-Host "$($Ship.Name)" -ForegroundColor White
                 Write-Host "Vessel ID:       " -NoNewline; Write-Host "[$($Ship.VesselID)]" -ForegroundColor Gray
@@ -97,7 +96,7 @@ do {
                 if ($EfficiencyScore -gt 60) {
                     Write-Host "$EfficiencyScore (Optimal)" -ForegroundColor Green
                 } elseif ($EfficiencyScore -ge 30) {
-                    Write-Host "$EfficiencyScore (Moderate Burn)" -ForegroundColor DarkYellow
+                    Write-Host "$EfficiencyScore (Moderate Burn)" -ForegroundColor Yellow
                 } else {
                     Write-Host "$EfficiencyScore (Critical Refuel Needed)" -ForegroundColor Red
                 }
