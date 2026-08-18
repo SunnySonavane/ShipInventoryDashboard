@@ -8,19 +8,20 @@ function Show-DashboardMenu {
     Write-Host "=========================================" -ForegroundColor Cyan
     Write-Host "1. View Active Fleet Status"
     Write-Host "2. Check Fuel Levels Alert"
-    Write-Host "3. Exit System"
+    Write-Host "3. Update Vessel Destination"
+    Write-Host "4. Exit System"
     Write-Host "=========================================" -ForegroundColor Cyan
 }
 
 # Main Application Execution Loop
 do {
     Show-DashboardMenu
-    $Selection = Read-Host "Select a bridge option (1-3)"
+    $Selection = Read-Host "Select a bridge option (1-4)"
     
     switch ($Selection) {
         "1" {
             Clear-Host
-            Write-Host "--- Current Fleet Inventory Deployment ---" -ForegroundColor Yellow
+            Write-Host "--- Current Fleet Inventory Deployment ---" -ForegroundColor Gold
             Get-ShipFleet | Format-Table -AutoSize
             Read-Host "`nPress Enter to return to the bridge menu"
         }
@@ -32,7 +33,26 @@ do {
             }
             Read-Host "`nPress Enter to return to the bridge menu"
         }
+        "3" {
+            Clear-Host
+            Write-Host "--- Change Shipping Routing Orders ---" -ForegroundColor Yellow
+            $Fleet = Get-ShipFleet
+            $TargetID = Read-Host "Enter the VesselID you want to reroute (e.g., MS-001)"
+            $NewDest  = Read-Host "Enter the new destination port city"
+            
+            # Find the match and update it in memory
+            $Vessel = $Fleet | Where-Object { $_.VesselID -eq $TargetID }
+            if ($Vessel) {
+                $Vessel.Destination = $NewDest
+                Write-Host "`nSUCCESS: $($Vessel.Name) routing orders updated to $NewDest!" -ForegroundColor Green
+                Write-Host "`nUpdated Fleet Records:" -ForegroundColor Gold
+                $Fleet | Format-Table -AutoSize
+            } else {
+                Write-Host "ERROR: Vessel ID not found in manifest." -ForegroundColor Red
+            }
+            Read-Host "`nPress Enter to return to the bridge menu"
+        }
     }
-} while ($Selection -ne "3")
+} while ($Selection -ne "4")
 
 Write-Host "Powering down dashboard navigation console. Smooth sailing!" -ForegroundColor Green
