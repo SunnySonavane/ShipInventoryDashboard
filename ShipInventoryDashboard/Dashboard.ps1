@@ -21,7 +21,7 @@ do {
     switch ($Selection) {
         "1" {
             Clear-Host
-            Write-Host "--- Current Fleet Inventory Deployment ---" -ForegroundColor Gold
+            Write-Host "--- Current Fleet Inventory Deployment ---" -ForegroundColor Yellow
             Get-ShipFleet | Format-Table -AutoSize
             Read-Host "`nPress Enter to return to the bridge menu"
         }
