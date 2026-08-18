@@ -45,7 +45,7 @@ do {
             if ($Vessel) {
                 $Vessel.Destination = $NewDest
                 Write-Host "`nSUCCESS: $($Vessel.Name) routing orders updated to $NewDest!" -ForegroundColor Green
-                Write-Host "`nUpdated Fleet Records:" -ForegroundColor Gold
+                Write-Host "`nUpdated Fleet Records:" -ForegroundColor Yellow
                 $Fleet | Format-Table -AutoSize
             } else {
                 Write-Host "ERROR: Vessel ID not found in manifest." -ForegroundColor Red
