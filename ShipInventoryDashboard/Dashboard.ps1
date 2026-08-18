@@ -9,14 +9,15 @@ function Show-DashboardMenu {
     Write-Host "1. View Active Fleet Status"
     Write-Host "2. Check Fuel Levels Alert"
     Write-Host "3. Update Vessel Destination"
-    Write-Host "4. Exit System"
+    Write-Host "4. Adjust Cargo Levels (Load/Unload)"
+    Write-Host "5. Exit System"
     Write-Host "=========================================" -ForegroundColor Cyan
 }
 
 # Main Application Execution Loop
 do {
     Show-DashboardMenu
-    $Selection = Read-Host "Select a bridge option (1-4)"
+    $Selection = Read-Host "Select a bridge option (1-5)"
     
     switch ($Selection) {
         "1" {
@@ -40,7 +41,6 @@ do {
             $TargetID = Read-Host "Enter the VesselID you want to reroute (e.g., MS-001)"
             $NewDest  = Read-Host "Enter the new destination port city"
             
-            # Find the match and update it in memory
             $Vessel = $Fleet | Where-Object { $_.VesselID -eq $TargetID }
             if ($Vessel) {
                 $Vessel.Destination = $NewDest
@@ -52,7 +52,32 @@ do {
             }
             Read-Host "`nPress Enter to return to the bridge menu"
         }
+        "4" {
+            Clear-Host
+            Write-Host "--- Cargo Hold Adjustments ---" -ForegroundColor Yellow
+            $Fleet = Get-ShipFleet
+            $TargetID = Read-Host "Enter the VesselID for loading/unloading (e.g., MS-001)"
+            
+            $Vessel = $Fleet | Where-Object { $_.VesselID -eq $TargetID }
+            if ($Vessel) {
+                Write-Host "Current Cargo Load for $($Vessel.Name): $($Vessel.CargoLoad)%" -ForegroundColor Cyan
+                $Adjustment = Read-Host "Enter new cargo percentage (0 to 100)"
+                
+                # Validate input is within a safe maritime threshold
+                if ($Adjustment -as [int] -and [int]$Adjustment -ge 0 -and [int]$Adjustment -le 100) {
+                    $Vessel.CargoLoad = [int]$Adjustment
+                    Write-Host "`nSUCCESS: Cargo manifest updated for $($Vessel.Name)!" -ForegroundColor Green
+                    Write-Host "`nUpdated Fleet Records:" -ForegroundColor Yellow
+                    $Fleet | Format-Table -AutoSize
+                } else {
+                    Write-Host "ERROR: Invalid cargo parameters. Must be a number between 0 and 100." -ForegroundColor Red
+                }
+            } else {
+                Write-Host "ERROR: Vessel ID not found in manifest." -ForegroundColor Red
+            }
+            Read-Host "`nPress Enter to return to the bridge menu"
+        }
     }
-} while ($Selection -ne "4")
+} while ($Selection -ne "5")
 
 Write-Host "Powering down dashboard navigation console. Smooth sailing!" -ForegroundColor Green
