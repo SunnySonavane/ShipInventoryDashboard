@@ -42,10 +42,14 @@ This application models an enterprise command console using professional-grade s
    
 ------------------------------
 ## 🔧 Core Code Snippet Showcase
-This snippet showcases the robust Cargo Hold Adjustment routine with type validation and disk save integration:
 
+This snippet showcases the robust **Cargo Hold Adjustment** routine with type validation and disk save integration:
+
+```powershell
 $Adjustment = Read-Host "Enter new cargo percentage (0 to 100)"
-# Type validation guardrail ensures input is within a safe thresholdif ($Adjustment -as [int] -and [int]$Adjustment -ge 0 -and [int]$Adjustment -le 100) {
+
+# Type validation guardrail ensures input is within a safe threshold
+if ($Adjustment -as [int] -and [int]$Adjustment -ge 0 -and [int]$Adjustment -le 100) {
     $Vessel.CargoLoad = [int]$Adjustment
     # Instantly saves data state to file database
     Save-ShipFleet -UpdatedFleet $Fleet
@@ -53,13 +57,15 @@ $Adjustment = Read-Host "Enter new cargo percentage (0 to 100)"
 } else {
     Write-Host "ERROR: Invalid cargo parameters." -ForegroundColor Red
 }
+```
 
-------------------------------
+---
+
 ## 🧑‍💻 Development Workflow & Branch Hygiene
-This project strictly utilizes the Git Feature Branch Workflow to guarantee that the main production branch remains stable during feature development cycles:
 
-   1. Isolate: Work inside isolated feature dry-docks (git checkout -b feature-name).
-   2. Commit: Log modular, standard semantic commits (git commit -m "feat: description").
-   3. Merge: Switch back to main, pull the tested branch (git merge feature-name), and push live (git push origin main).
+This project strictly utilizes the **Git Feature Branch Workflow** to guarantee that the `main` production branch remains stable during feature development cycles:
 
+1. **Isolate:** Work inside isolated feature dry-docks (`git checkout -b feature-name`).
+2. **Commit:** Log modular, standard semantic commits (`git commit -m "feat: description"`).
+3. **Merge:** Switch back to `main`, pull the tested branch (`git merge feature-name`), and push live (`git push origin main`).
 
